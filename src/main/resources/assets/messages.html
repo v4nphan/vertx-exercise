@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Vertx</title>
+
+    <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+</head>
+<body>
+<div class="container" role="main">
+    <div class="page-header">
+        <h1>Messages</h1>
+        <button class="pull-right btn btn-primary" data-action="add" data-toggle="modal"
+                data-target="#messageModal">
+            <span class="glyphicon glyphicon-plus"></span> Add new messages
+        </button>
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Content</th>
+                    </tr>
+                    </thead>
+                    <tbody id="content">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var id = window.location.search.substring(1).split('=')[1];
+    $(function () {
+        load();
+        initModal();
+    });
+
+    function create(userId, title, content) {
+        remoteCall("POST", "/users/" + userId + "/messages", "text", JSON.stringify({title: title, content: content}), function () {
+            load();
+        });
+    }
+
+    function load() {
+        $("#content").children().remove();
+        remoteCall("GET", "/users/" + id + "/messages" ,"json", "", function (data) {
+            $.each(data, function (key, val) {
+                $("<tr><td>" + val.title + "</td><td>" + val.content + "</>" +
+                        "</tr>").appendTo("#content");
+            });
+        });
+    }
+
+    function initModal() {
+        $("#messageModal").on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var action = button.data('action');
+            var messageAction = $("#messageAction");
+            messageAction.unbind();
+            var modal = $(this);
+            modal.find('#message-title').val("");
+            modal.find('#message-content').val("");
+            messageAction.click(function () {
+                create(id, $("#message-title").val(), $("#message-content").val());
+                $('#messageModal .close').click();
+            });
+
+        })
+    }
+
+    function remoteCall(t, url, dataType, data, success) {
+        $.ajax({
+            type: t,
+            url: url,
+            dataType: dataType,
+            data: data,
+            headers: {
+                "KEY":"ThisIsMyKey"
+            },
+            success: success,
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                window.alert("Error: " + errorThrown);
+            }
+        });
+    }
+</script>
+<div class="modal fade" id="messageModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                <h4 class="modal-title" id="messageModalTitle">Add a message</h4>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <label for="message-title" class="control-label">Title:</label>
+                        <input type="text" class="form-control" id="message-title">
+                    </div>
+                    <div class="form-group">
+                        <label for="message-content" class="control-label">Content:</label>
+                        <input type="text" class="form-control" id="message-content">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <button type="button" id="messageAction" class="btn btn-primary">Add</button>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

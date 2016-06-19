@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Vertx Exercise</title>
+
+    <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+</head>
+<body>
+<div class="container" role="main">
+    <div class="page-header">
+        <h1>Users</h1>
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Name</th>
+                        <th>Messages</th>
+                    </tr>
+                    </thead>
+                    <tbody id="content">
+                    <!-- filled using Ajax -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(function () {
+        $("#content").children().remove();
+        $.ajax({
+            dataType: "json",
+            url: "/users",
+            headers: {
+                "KEY":"ThisIsMyKey"
+            },
+            success: success
+        })
+        function success(data) {
+            $.each(data, function (key, val) {
+                $("<tr><td>" + val.id + "</td><td>" + val.name + "</>" +
+                        "<td>" +
+                        "<button class='btn btn-primary btn-sm product-edit' onclick='showDetails(" + val.id + ")'" +
+                        "<span>View Messages</span>" +
+                        "</td>" +
+                        "</tr>").appendTo("#content");
+            });
+        };
+    });
+    function showDetails(userId) {
+        window.location = '/assets/messages.html?id=' + userId;
+    }
+
+</script>
+</body>
+</html>
