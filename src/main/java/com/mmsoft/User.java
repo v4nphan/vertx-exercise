@@ -75,7 +75,6 @@ public class User extends AbstractVerticle {
     @Override
     public void start() throws Exception {
         getVertx().eventBus().consumer(Constants.getMessages, message -> {
-            System.out.println(message.body().toString());
             User user = (User) decode(message, User.class);
             message.reply(Json.encodePrettily(user.getMessages()));
         });
